@@ -14,21 +14,12 @@ using namespace std;
 
 class Column  {
   public:
-    vector<char> code;
+    string code;
     char symbol;
-    Column(char symbol, vector<char> code);
-    void print();
+    Column(char symbol, string code);
 };
 
-void Column::print() {
-  cout << symbol << ": ";
-  for(int index=0; index<code.size(); index++) {
-    cout << code[index];
-  }
-  cout << endl;
-}
-
-Column::Column(char symbol, vector<char> code) {
+Column::Column(char symbol, string code) {
   this->symbol = symbol;
   this->code = code;
 }
@@ -40,51 +31,35 @@ class Node {
     char symbol;
     vector<Node> adjacents;
     vector<Column> codes;
-    vector<char> compactedData;
     Node(int frequency, char symbol);
     Node(int frequency, vector<Node> adjacents);
     void print();
     void printOne();
     void plusOneFrequency();
-    vector<Column> getCodes(vector<char>* code);
+    vector<Column> generateCode(string code);
     void printCodes();
-    vector<char> getCodeBySymbol(char symbol);
-    void generateCode(vector<char> data);
-    void printCompactedData();
 };
 
-vector<Column> Node::getCodes(vector<char>* code) {
+vector<Column> Node::generateCode(string code = "") {
 
   if(this->hasSymbol) {
-    cout << "Adding " << this->symbol  << endl;
-    codes.push_back(Column (this->symbol, *code));
+    cout << "Adding " << this->symbol << endl;
+    codes.push_back(Column (this->symbol, code));
   }
 
   if(adjacents.size() > 0) {
     vector<Column> codes1;
-    code->push_back('1');
-    codes1 = adjacents[0].getCodes(code);
+    codes1 = adjacents[0].generateCode(code + '1');
     codes.insert( codes.end(), codes1.begin(), codes1.end() );
   }
 
   if(adjacents.size() > 1) {
     vector<Column> codes2;
-    code->push_back('0');
-    codes2 = adjacents[1].getCodes(code);
+    codes2 = adjacents[1].generateCode(code + '0');
     codes.insert( codes.end(), codes2.begin(), codes2.end() );
   }
 
   return codes;
-}
-
-vector<char> Node::getCodeBySymbol(char symbol) {
-  for(int index=0; index<codes.size(); index++) {
-    if(codes[index].symbol == symbol) {
-      return codes[index].code;;
-    }
-  }
-
-  return vector<char>();
 }
 
 Node::Node(int frequency, char symbol) {
@@ -121,27 +96,12 @@ void Node::printOne() {
 void Node::printCodes() {
   cout << "Printing Codes" << endl;
   for(int index=0; index<codes.size(); index++) {
-    codes[index].print();
+    cout << codes[index].symbol << ": " << codes[index].code << endl;
   }
 }
 
 void Node::plusOneFrequency() {
   frequency++;
-}
-
-void Node::printCompactedData() {
-  for(int index=0; index<compactedData.size(); index++) {
-    cout << compactedData[index];
-  }
-}
-
-void Node::generateCode(vector<char> data) {
-  compactedData.clear();
-  for(int index=0; index<data.size(); index++) {
-    vector<char> temp;
-    temp = getCodeBySymbol(data[index]);
-    compactedData.insert(compactedData.end(), temp.begin(), temp.end());
-  }
 }
 
 class Graph {
@@ -261,12 +221,8 @@ int main(int argc, char** argv) {
   Node root = graph.getTree();
   root.print();
   cout << endl;
-  vector<char> code;
-  root.getCodes(&code);
+  root.generateCode();
   root.printCodes();
-  cout << endl;
-  root.generateCode(data);
-  root.printCompactedData();
   infile.close();
 
   return 0;
