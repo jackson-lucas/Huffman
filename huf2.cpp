@@ -40,6 +40,7 @@ class Node {
     char symbol;
     vector<Node> adjacents;
     vector<Column> codes;
+    vector<char> compactedData;
     Node(int frequency, char symbol);
     Node(int frequency, vector<Node> adjacents);
     void print();
@@ -47,8 +48,9 @@ class Node {
     void plusOneFrequency();
     vector<Column> getCodes(vector<char> code);
     void printCodes();
-    vector<char> generateCode(vector<char> data);
     vector<char> getCodeBySymbol(char symbol);
+    void generateCode(vector<char> data);
+    void printCompactedData();
 };
 
 vector<Column> Node::getCodes(vector<char> code) {
@@ -76,6 +78,12 @@ vector<Column> Node::getCodes(vector<char> code) {
 }
 
 vector<char> Node::getCodeBySymbol(char symbol) {
+  for(int index=0; index<codes.size(); index++) {
+    if(codes[index].symbol == symbol) {
+      return codes[index].code;;
+    }
+  }
+
   return vector<char>();
 }
 
@@ -121,8 +129,19 @@ void Node::plusOneFrequency() {
   frequency++;
 }
 
-vector<char> generateCode(vector<char> data) {
-  return vector<char>();
+void Node::printCompactedData() {
+  for(int index=0; index<compactedData.size(); index++) {
+    cout << compactedData[index];
+  }
+}
+
+void Node::generateCode(vector<char> data) {
+  compactedData.clear();
+  for(int index=0; index<data.size(); index++) {
+    vector<char> temp;
+    temp = getCodeBySymbol(data[index]);
+    compactedData.insert(compactedData.end(), temp.begin(), temp.end());
+  }
 }
 
 class Graph {
@@ -245,6 +264,9 @@ int main(int argc, char** argv) {
   vector<char> code;
   root.getCodes(code);
   root.printCodes();
+  cout << endl;
+  root.generateCode(data);
+  root.printCompactedData();
   infile.close();
 
   return 0;
