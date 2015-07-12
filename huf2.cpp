@@ -36,23 +36,30 @@ class Node {
     void print();
     void printOne();
     void plusOneFrequency();
-    void generateCode(vector<Column> codes, string code);
+    vector<Column> generateCode(string code);
     void printCodes();
 };
 
-void Node::generateCode(vector<Column> codes, string code = "") {
+vector<Column> Node::generateCode(string code = "") {
 
   if(this->hasSymbol) {
+    cout << "Adding " << this->symbol << endl;
     codes.push_back(Column (this->symbol, code));
   }
 
   if(adjacents.size() > 0) {
-    adjacents[0].generateCode(codes, code + '1');
+    vector<Column> codes1;
+    codes1 = adjacents[0].generateCode(code + '1');
+    codes.insert( codes.end(), codes1.begin(), codes1.end() );
   }
 
   if(adjacents.size() > 1) {
-    adjacents[1].generateCode(codes, code + '0');
+    vector<Column> codes2;
+    codes2 = adjacents[1].generateCode(code + '0');
+    codes.insert( codes.end(), codes2.begin(), codes2.end() );
   }
+
+  return codes;
 }
 
 Node::Node(int frequency, char symbol) {
@@ -214,7 +221,7 @@ int main(int argc, char** argv) {
   Node root = graph.getTree();
   root.print();
   cout << endl;
-  root.generateCode(root.codes);
+  root.generateCode();
   root.printCodes();
   infile.close();
 
