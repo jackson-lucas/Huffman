@@ -14,12 +14,21 @@ using namespace std;
 
 class Column  {
   public:
-    string code;
+    vector<char> code;
     char symbol;
-    Column(char symbol, string code);
+    Column(char symbol, vector<char> code);
+    void print();
 };
 
-Column::Column(char symbol, string code) {
+void Column::print() {
+  cout << symbol << ": ";
+  for(int index=0; index<code.size(); index++) {
+    cout << code[index];
+  }
+  cout << endl;
+}
+
+Column::Column(char symbol, vector<char> code) {
   this->symbol = symbol;
   this->code = code;
 }
@@ -36,11 +45,13 @@ class Node {
     void print();
     void printOne();
     void plusOneFrequency();
-    vector<Column> generateCode(string code);
+    vector<Column> getCodes(vector<char> code);
     void printCodes();
+    vector<char> generateCode(vector<char> data);
+    vector<char> getCodeBySymbol(char symbol);
 };
 
-vector<Column> Node::generateCode(string code = "") {
+vector<Column> Node::getCodes(vector<char> code) {
 
   if(this->hasSymbol) {
     cout << "Adding " << this->symbol << endl;
@@ -49,17 +60,23 @@ vector<Column> Node::generateCode(string code = "") {
 
   if(adjacents.size() > 0) {
     vector<Column> codes1;
-    codes1 = adjacents[0].generateCode(code + '1');
+    code.push_back('1');
+    codes1 = adjacents[0].getCodes(code);
     codes.insert( codes.end(), codes1.begin(), codes1.end() );
   }
 
   if(adjacents.size() > 1) {
     vector<Column> codes2;
-    codes2 = adjacents[1].generateCode(code + '0');
+    code.push_back('0');
+    codes2 = adjacents[1].getCodes(code);
     codes.insert( codes.end(), codes2.begin(), codes2.end() );
   }
 
   return codes;
+}
+
+vector<char> Node::getCodeBySymbol(char symbol) {
+  return vector<char>();
 }
 
 Node::Node(int frequency, char symbol) {
@@ -96,12 +113,16 @@ void Node::printOne() {
 void Node::printCodes() {
   cout << "Printing Codes" << endl;
   for(int index=0; index<codes.size(); index++) {
-    cout << codes[index].symbol << ": " << codes[index].code << endl;
+    codes[index].print();
   }
 }
 
 void Node::plusOneFrequency() {
   frequency++;
+}
+
+vector<char> generateCode(vector<char> data) {
+  return vector<char>();
 }
 
 class Graph {
@@ -221,7 +242,8 @@ int main(int argc, char** argv) {
   Node root = graph.getTree();
   root.print();
   cout << endl;
-  root.generateCode();
+  vector<char> code;
+  root.getCodes(code);
   root.printCodes();
   infile.close();
 
