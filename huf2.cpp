@@ -46,30 +46,30 @@ class Node {
     void print();
     void printOne();
     void plusOneFrequency();
-    vector<Column> getCodes(vector<char> code);
+    vector<Column> getCodes(vector<char>* code);
     void printCodes();
     vector<char> getCodeBySymbol(char symbol);
     void generateCode(vector<char> data);
     void printCompactedData();
 };
 
-vector<Column> Node::getCodes(vector<char> code) {
+vector<Column> Node::getCodes(vector<char>* code) {
 
   if(this->hasSymbol) {
-    cout << "Adding " << this->symbol << endl;
-    codes.push_back(Column (this->symbol, code));
+    cout << "Adding " << this->symbol  << endl;
+    codes.push_back(Column (this->symbol, *code));
   }
 
   if(adjacents.size() > 0) {
     vector<Column> codes1;
-    code.push_back('1');
+    code->push_back('1');
     codes1 = adjacents[0].getCodes(code);
     codes.insert( codes.end(), codes1.begin(), codes1.end() );
   }
 
   if(adjacents.size() > 1) {
     vector<Column> codes2;
-    code.push_back('0');
+    code->push_back('0');
     codes2 = adjacents[1].getCodes(code);
     codes.insert( codes.end(), codes2.begin(), codes2.end() );
   }
@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
   root.print();
   cout << endl;
   vector<char> code;
-  root.getCodes(code);
+  root.getCodes(&code);
   root.printCodes();
   cout << endl;
   root.generateCode(data);
