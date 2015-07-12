@@ -31,36 +31,18 @@ class Node {
     char symbol;
     vector<Node> adjacents;
     vector<Column> codes;
+    string compactedData;
     Node(int frequency, char symbol);
     Node(int frequency, vector<Node> adjacents);
     void print();
     void printOne();
     void plusOneFrequency();
-    vector<Column> generateCode(string code);
-    void printCodes();
+    vector<Column> getCodes(string code);
+   void printCodes();
+   string getCodeBySymbol(char symbol);
+   void generateCode(vector<char> data);
+   void printCompactedData();
 };
-
-vector<Column> Node::generateCode(string code = "") {
-
-  if(this->hasSymbol) {
-    cout << "Adding " << this->symbol << endl;
-    codes.push_back(Column (this->symbol, code));
-  }
-
-  if(adjacents.size() > 0) {
-    vector<Column> codes1;
-    codes1 = adjacents[0].generateCode(code + '1');
-    codes.insert( codes.end(), codes1.begin(), codes1.end() );
-  }
-
-  if(adjacents.size() > 1) {
-    vector<Column> codes2;
-    codes2 = adjacents[1].generateCode(code + '0');
-    codes.insert( codes.end(), codes2.begin(), codes2.end() );
-  }
-
-  return codes;
-}
 
 Node::Node(int frequency, char symbol) {
   this->frequency = frequency;
@@ -99,6 +81,46 @@ void Node::printCodes() {
     cout << codes[index].symbol << ": " << codes[index].code << endl;
   }
 }
+
+vector<Column> Node::getCodes(string code = "") {
+
+  if(this->hasSymbol) {
+    cout << "Adding " << this->symbol << endl;
+    codes.push_back(Column (this->symbol, code));
+  }
+
+  if(adjacents.size() > 0) {
+    vector<Column> codes1;
+    codes1 = adjacents[0].getCodes(code + '1');
+    codes.insert( codes.end(), codes1.begin(), codes1.end() );
+  }
+
+  if(adjacents.size() > 1) {
+    vector<Column> codes2;
+    codes2 = adjacents[1].getCodes(code + '0');
+    codes.insert( codes.end(), codes2.begin(), codes2.end() );
+  }
+
+  return codes;
+}
+
+string Node::getCodeBySymbol(char symbol) {
+  for(int index=0; index<codes.size(); index++) {
+    if(codes[index].symbol == symbol) {
+      return codes[index].code;;
+    }
+  }
+
+   return "";
+ }
+void Node::generateCode(vector<char> data) {
+  compactedData.clear();
+  for(int index=0; index<data.size(); index++) {
+    string temp;
+    temp = getCodeBySymbol(data[index]);
+    compactedData += temp;
+  }
+ }
 
 void Node::plusOneFrequency() {
   frequency++;
@@ -221,8 +243,12 @@ int main(int argc, char** argv) {
   Node root = graph.getTree();
   root.print();
   cout << endl;
-  root.generateCode();
+  root.getCodes();
   root.printCodes();
+  root.generateCode(data);
+  cout << endl;
+  cout << root.compactedData << endl;
+  cout << root.compactedData.size()<< endl;
   infile.close();
 
   return 0;
