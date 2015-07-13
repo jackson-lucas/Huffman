@@ -12,67 +12,247 @@
 
 using namespace std;
 
-typedef struct TreeNode {
-  int frequency;
-  char symbol;
-  struct TreeNode* zero;
-  struct TreeNode* one;
-} TreeNode;
+class Column  {
+  public:
+    string code;
+    char symbol;
+    Column(char symbol, string code);
+};
 
-typedef struct Table {
-  string code;
-  char symbol;
-} Table;
-
-TreeNode* NewNode(int frequency, char symbol) {
-  TreeNode* node = new(TreeNode);    // "new" is like "malloc"
-  node->frequency = frequency;
-  node->symbol = symbol;
-  node->one = NULL;
-  node->zero = NULL;
-
-  return(node);
+Column::Column(char symbol, string code) {
+  this->symbol = symbol;
+  this->code = code;
 }
 
-TreeNode* NewNode(int frequency, TreeNode* zero, TreeNode* one) {
-  TreeNode* node = new(TreeNode);    // "new" is like "malloc"
-  node->frequency = frequency;
-  node->one = one;
-  node->zero = zero;
+class Node {
+  public:
+    int frequency;
+    bool hasSymbol;
+    char symbol;
+    vector<Node> adjacents;
+    vector<Column> codes;
+    string compactedData;
+    Node(int frequency, char symbol);
+    Node(int frequency, vector<Node> adjacents);
+    void print();
+    void printOne();
+    void plusOneFrequency();
+    vector<Column> getCodes(string code);
+   void printCodes();
+   string treeAsPrefix();
+   string treeAsInfix();
+   string codesAsString();
+   string getCodeBySymbol(char symbol);
+   void generateCode(vector<char> data);
+   void printCompactedData();
+};
 
-  return(node);
+Node::Node(int frequency, char symbol) {
+  this->frequency = frequency;
+  this->hasSymbol = true;
+  this->symbol = symbol;
 }
 
-void printVector(vector<char> vertex) {
-  for(int index=0; index<vertex.size(); index++) {
-    cout << vertex[index] << " ";
+Node::Node(int frequency, vector<Node> adjacents) {
+  this->frequency = frequency;
+  this->hasSymbol = false;
+  this->adjacents = adjacents;
+}
+
+string Node::codesAsString() {
+  string codeTable;
+  for(int index=0; index<codes.size(); index++) {
+    codeTable += codes[index].symbol;
+    codeTable += ":" + codes[index].code + '\n';
+  }
+
+  return codeTable;
+}
+
+string Node::treeAsPrefix() {
+  string tree;
+
+  //tree += "[";
+  tree += symbol;
+  tree += "]";
+
+  //tree += "[";
+  // the lesser to the left
+  if(adjacents.size() > 1) {
+
+    tree += adjacents[0].treeAsPrefix();
+
+
+    //tree += "\n";
+
+    tree += adjacents[1].treeAsPrefix();
+  }
+  //tree+="]";
+
+  return tree;
+}
+
+string Node::treeAsInfix() {
+  string tree;
+
+  //tree += "[";
+
+
+  //tree += "[";
+  // the lesser to the left
+  if(adjacents.size() > 0) {
+
+    tree += adjacents[0].treeAsInfix();
+    tree += "]";
+  }
+
+    tree += symbol;
+    tree += "]";
+    //tree += "\n";
+  if(adjacents.size() > 1) {
+
+    tree += adjacents[1].treeAsInfix();
+  }
+  //tree+="]";
+
+  return tree;
+}
+
+void Node::print() {
+  cout << " ( ";
+  // the lesser to the left
+  if(adjacents.size() > 0) {
+    adjacents[0].print();
+  }
+
+  cout << symbol << ": " << frequency;
+
+  if(adjacents.size() > 1) {
+    adjacents[1].print();
+  }
+  cout << " ) ";
+}
+
+void Node::printOne() {
+  cout << symbol << ": " << frequency << endl;
+}
+
+void Node::printCodes() {
+  cout << "Printing Codes" << endl;
+  for(int index=0; index<codes.size(); index++) {
+    cout << codes[index].symbol << ": " << codes[index].code << endl;
+  }
+}
+
+vector<Column> Node::getCodes(string code = "") {
+
+  if(this->hasSymbol) {
+    cout << "Adding " << this->symbol << endl;
+    codes.push_back(Column (this->symbol, code));
+  }
+
+  if(adjacents.size() > 0) {
+    vector<Column> codes1;
+    codes1 = adjacents[0].getCodes(code + '1');
+    codes.insert( codes.end(), codes1.begin(), codes1.end() );
+  }
+
+  if(adjacents.size() > 1) {
+    vector<Column> codes2;
+    codes2 = adjacents[1].getCodes(code + '0');
+    codes.insert( codes.end(), codes2.begin(), codes2.end() );
+  }
+
+  return codes;
+}
+
+string Node::getCodeBySymbol(char symbol) {
+  for(int index=0; index<codes.size(); index++) {
+    if(codes[index].symbol == symbol) {
+      return codes[index].code;;
+    }
+  }
+
+   return "";
+ }
+void Node::generateCode(vector<char> data) {
+  compactedData.clear();
+  for(int index=0; index<data.size(); index++) {
+    string temp;
+    temp = getCodeBySymbol(data[index]);
+    compactedData += temp;
+  }
+ }
+
+void Node::plusOneFrequency() {
+  frequency++;
+}
+
+class Graph {
+  public:
+    vector<Node> nodes;
+    Graph(vector<Node> nodes);
+    void printNodes();
+    int getLesserFrequency();
+    Node getTree();
+};
+
+Graph::Graph(vector<Node> nodes) {
+  this->nodes = nodes;
+}
+
+void Graph::printNodes() {
+  for(int index=0; index<nodes.size(); index++) {
+    cout << nodes[index].symbol << ": " << nodes[index].frequency << endl;
   }
   cout << endl;
 }
 
-void printGraph(vector<TreeNode> graph) {
-  for(int index=0; index<graph.size(); index++) {
-    cout << graph[index].symbol << ": " << graph[index].frequency << endl;
+int Graph::getLesserFrequency() {
+  int lesserFrequency = nodes[0].frequency;
+  int symbolIndex = 0;
+
+  for(int index = 1; index < nodes.size(); index++) {
+    if(nodes[index].frequency < lesserFrequency) {
+      lesserFrequency = nodes[index].frequency;
+      symbolIndex = index;
+    }
   }
-  cout << endl;
+
+  return symbolIndex;
 }
 
-void printTree(TreeNode* node) {
-  if (node == NULL) return;
+Node Graph::getTree() {
+  int index;
 
-  cout << node->frequency << endl;
-  printTree(node->zero);
-  printTree(node->one);
-}
+  while(nodes.size() > 1) {
+    vector<Node> adjacents;
 
-void printTable(vector<Table> table) {
-  for(int index=0; index<table.size(); index++) {
-    cout << table[index].symbol << ": " << table[index].code << endl;
+    index = getLesserFrequency();
+    Node nodeLesser1 = nodes[index];
+    nodes.erase(nodes.begin()+index);
+
+    index = getLesserFrequency();
+    Node nodeLesser2 = nodes[index];
+    nodes.erase(nodes.begin()+index);
+
+    if(!nodeLesser2.hasSymbol && nodeLesser1.hasSymbol) {
+      adjacents.push_back(nodeLesser2);
+      adjacents.push_back(nodeLesser1);
+    } else {
+      adjacents.push_back(nodeLesser1);
+      adjacents.push_back(nodeLesser2);
+    }
+
+    Node newNode(adjacents[0].frequency + adjacents[1].frequency, adjacents);
+    //newNode.printOne();
+    nodes.push_back(newNode);
   }
-  cout << endl;
+
+  return nodes[0];
 }
 
-int getIndexBySymbol(char symbol, vector<TreeNode> graph) {
+int getIndexBySymbol(char symbol, vector<Node> graph) {
   for(int index=0; index<graph.size(); index++) {
     if (graph[index].symbol == symbol) {
       return index;
@@ -82,97 +262,65 @@ int getIndexBySymbol(char symbol, vector<TreeNode> graph) {
   return -1;
 }
 
-vector<TreeNode> getGraph(vector<char> data) {
-  std::vector<TreeNode> graph;
+Graph getGraph(vector<char> data) {
+  std::vector<Node> nodes;
   int indexFound;
 
   for(int index=0; index<data.size(); index++) {
     // Found
-    indexFound = getIndexBySymbol(data[index], graph);
+    indexFound = getIndexBySymbol(data[index], nodes);
     if(indexFound != -1) {
-      graph[indexFound].frequency += 1;
+      //nodes[indexFound].printOne();
+      nodes[indexFound].plusOneFrequency();
     } else {
-      TreeNode* node = NewNode(1, data[index]);
-
-      graph.push_back(*node);
+      Node node(1, data[index]);
+      //node.printOne();
+      nodes.push_back(node);
     }
   }
 
+  Graph graph(nodes);
   return graph;
 }
 
-int getLesserFrequency(vector<TreeNode> graph) {
-  int lesserFrequency = graph[0].frequency;
-  int symbolIndex = 0;
-
-  for(int index = 1; index < graph.size(); index++) {
-    if(graph[index].frequency < lesserFrequency) {
-      graph[index].frequency  = lesserFrequency;
-      symbolIndex = index;
-    }
+void printVector(vector<char> vertex) {
+  for(int index=0; index<vertex.size(); index++) {
+    cout << vertex[index] << " ";
   }
-
-  return symbolIndex;
+  cout << endl;
 }
 
-TreeNode* getTree(vector<TreeNode> graph) {
-  int index;
-
-  while(graph.size() > 1) {
-    index = getLesserFrequency(graph);
-    TreeNode first = graph[index];
-    graph.erase(graph.begin()+index);
-
-    index = getLesserFrequency(graph);
-    TreeNode second = graph[index];
-    graph.erase(graph.begin()+index);
-
-    TreeNode* newNode = NewNode(second.frequency + first.frequency, &second, &first);
-
-    graph.push_back(*newNode);
-  }
-
-  return &graph[0];
-}
-
-vector<Table> getCodes(TreeNode* root, string code) {
-  vector<Table> table, tableOne, tableZero;
-
-
-  /*
-  if(root->symbol != '\0') {
-    Table column;
-    column.code = code;
-    column.symbol = root->symbol;
-    //cout << root->symbol << endl;
-    table.push_back(column);
-  }*/
-
-  //cout << root->frequency << endl;
-  tableOne = getCodes(root->one, "1" + code);
-  tableZero = getCodes(root->zero, "0" + code);
-  /*
-  //table.reserve( tableOne.size() + tableZero.size() ); // preallocate memory
-  if(tableOne.size()) {
-    table.insert( table.end(), tableOne.begin(), tableOne.end() );
-  }
-  if(tableZero.size()) {
-    table.insert( table.end(), tableZero.begin(), tableZero.end() );
-  }*/
-  return table;
-}
-
+// adjacent[0] means 1 in code
+// adjacent[1] means 0 in code
 int main(int argc, char** argv) {
   std::ifstream infile(argv[1], std::ios::binary);
 
-  std::vector<char> data = std::vector<char>(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
+  std::vector<char> data = std::vector<char>
+    (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
 
   //printVector(data);
-  //printGraph(getGraph(data));
-  TreeNode* root = getTree(getGraph(data));
-  printTree(root);
-  //printTable(getCodes(&root, ""));
-  infile.close();
 
+  Graph graph = getGraph(data);
+  graph.printNodes();
+  Node root = graph.getTree();
+  root.print();
+  cout << endl;
+  root.getCodes();
+  root.printCodes();
+  root.generateCode(data);
+  cout << endl;
+  //cout << root.compactedData << endl;
+  //cout << root.compactedData.size()<< endl;
+  infile.close();
+  string file(argv[1]);
+  std::ofstream outfile (file+".comp");
+
+  outfile << root.compactedData;
+
+  outfile.close();
+
+  std::ofstream tree ("tree");
+  tree << root.treeAsPrefix() << endl << root.treeAsInfix() << std::endl;
+  tree.close();
   return 0;
 }
