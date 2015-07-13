@@ -117,7 +117,7 @@ void Descompressor::printCodes() {
 }
 
 void Descompressor::getCodesFromFile() {
-  std::ifstream infile("code", std::ios::binary);
+  std::ifstream infile("codes", std::ios::binary);
 
   std::vector<char> data = std::vector<char>
     (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
