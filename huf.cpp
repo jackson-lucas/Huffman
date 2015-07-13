@@ -119,35 +119,35 @@ string Node::treeAsInfix() {
 }
 
 void Node::print() {
-  cout << " ( ";
+  //cout << " ( ";
   // the lesser to the left
   if(adjacents.size() > 0) {
     adjacents[0].print();
   }
 
-  cout << symbol << ": " << frequency;
+  //cout << symbol << ": " << frequency;
 
   if(adjacents.size() > 1) {
     adjacents[1].print();
   }
-  cout << " ) ";
+  //cout << " ) ";
 }
 
 void Node::printOne() {
-  cout << symbol << ": " << frequency << endl;
+  //cout << symbol << ": " << frequency << endl;
 }
 
 void Node::printCodes() {
-  cout << "Printing Codes" << endl;
+  //cout << "Printing Codes" << endl;
   for(int index=0; index<codes.size(); index++) {
-    cout << codes[index].symbol << ": " << codes[index].code << endl;
+    //cout << codes[index].symbol << ": " << codes[index].code << endl;
   }
 }
 
 vector<Column> Node::getCodes(string code = "") {
 
   if(this->hasSymbol) {
-    cout << "Adding " << this->symbol << endl;
+    //cout << "Adding " << this->symbol << endl;
     codes.push_back(Column (this->symbol, code));
   }
 
@@ -203,9 +203,9 @@ Graph::Graph(vector<Node> nodes) {
 
 void Graph::printNodes() {
   for(int index=0; index<nodes.size(); index++) {
-    cout << nodes[index].symbol << ": " << nodes[index].frequency << endl;
+    //cout << nodes[index].symbol << ": " << nodes[index].frequency << endl;
   }
-  cout << endl;
+  //cout << endl;
 }
 
 int Graph::getLesserFrequency() {
@@ -285,9 +285,9 @@ Graph getGraph(vector<char> data) {
 
 void printVector(vector<char> vertex) {
   for(int index=0; index<vertex.size(); index++) {
-    cout << vertex[index] << " ";
+    //cout << vertex[index] << " ";
   }
-  cout << endl;
+  //cout << endl;
 }
 
 // adjacent[0] means 1 in code
@@ -304,13 +304,13 @@ int main(int argc, char** argv) {
   graph.printNodes();
   Node root = graph.getTree();
   root.print();
-  cout << endl;
+  //cout << endl;
   root.getCodes();
   root.printCodes();
   root.generateCode(data);
-  cout << endl;
-  //cout << root.compactedData << endl;
-  //cout << root.compactedData.size()<< endl;
+  //cout << endl;
+  ////cout << root.compactedData << endl;
+  ////cout << root.compactedData.size()<< endl;
   infile.close();
   string file(argv[1]);
   std::ofstream outfile (file+".comp");
@@ -319,8 +319,8 @@ int main(int argc, char** argv) {
 
   outfile.close();
 
-  std::ofstream tree ("tree");
-  tree << root.treeAsPrefix() << endl << root.treeAsInfix() << std::endl;
+  std::ofstream tree ("codes");
+  tree << root.codesAsString() << std::endl;
   tree.close();
   return 0;
 }

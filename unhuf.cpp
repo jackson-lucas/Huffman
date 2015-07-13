@@ -85,9 +85,39 @@ void Node::print() {
   cout << " ) ";
 }
 
-void Node::getCodesFromFile() {
+class Descompressor {
+  public:
+    string filename;
+    vector<char> data;
+    vector<Column> codes;
+    string descompressedData;
+    Descompressor();
+    void descompress();
+    void getCodesFromFile();
+    void printNodes();
+    void printCodes();
+    char getSymbol(string);
+};
+
+char Descompressor::getSymbol(string code) {
+  for(int index=0; index<codes.size(); index++) {
+    if(code == codes[index].code) {
+      //cout << codes[index].symbol << endl;
+      return codes[index].symbol;
+
+    }
+  }
+  return '\0';
+}
+
+void Descompressor::printCodes() {
+  for(int index=0; index<codes.size(); index++) {
+    cout << codes[index].symbol << ": " << codes[index].code << endl;
+  }
+}
+
+void Descompressor::getCodesFromFile() {
   std::ifstream infile("code", std::ios::binary);
-  vector<Column> codes;
 
   std::vector<char> data = std::vector<char>
     (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
@@ -111,118 +141,25 @@ void Node::getCodesFromFile() {
   }
 }
 
-class Tree {
-  public:
-    vector<char> data;
-    vector<Node> nodes;
-    vector<Node> prefixNodes;
-    vector<Node> infixNodes;
-    string descompressedData;
-    Tree();
-    void descompress();
-    void getTreeFromFile();
-    void printNodes();
-};
+Descompressor::Descompressor() {}
 
-int getIndexByNode(vector<Node> nodes, Node node) {
-  for(int index=0; index<nodes.size(); index++) {
-    if(nodes[index].symbol == node.symbol) {
-
-    }
-  }
-}
-
-vector<Node> getLeftAndRightFromInfix(vector<Node> infix, Node root) {
-  vector<Node> infixLefRight = vector<Node>(2);
-
-  int rootPosition = infix.find(root);
-
-  infixLefRight[0] = infix.substr(0, rootPosition);
-  infixLefRight[1] = infix.substr(rootPosition+1);
-
-  return infixLefRight;
-}
-
-vector<Node> Tree::getTree() {
-  vector<Node> leftRight;
-  vector<Node> left = vector<Node>(3);
-  vector<Node> right = vector<Node>(3);
-  Node root;
-  Node leftResult, rightResult;
-
-  if(prefixNodes.size() && infixNodes.size()) {
-
-    root = prefixNodes[0];
-    leftRight = getLeftAndRightFromInfix(infixNodes, root);
-
-    left[1] = leftRight[0];
-    right[1] = leftRight[1];
-
-    left[0] = prefixNodes.substr(1, left[1].size());
-    right[0] = prefixNodes.substr(left[1].size()+1);
-
-    leftResult = getTree(left);
-    rightResult = getTree(right);
-
-    //return leftResult + rightResult + root;
-  }
-
-  //return "";
-}
-
-Tree::Tree() {}
-
-void Tree::getTreeFromFile() {
-  std::ifstream infile("tree", std::ios::binary);
-  std::vector<char> data = std::vector<char>
-    (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
-
-  string treeData1(data.begin(), data.end());
-  string treeData2 = treeData1.substr(treeData1.find('\n')+1);
-
-  int nextIndex;
-  while(treeData1.size()) {
-    if(treeData1[0] == ']') {
-      prefixNodes.push_back(Node());
-    } else {
-      prefixNodes.push_back(Node(treeData1[nextIndex]));
-    }
-
-    treeData1 = treeData1.substr(nextIndex+1);
-  }
-
-  while(treeData2.size()) {
-    if(treeData2[0] == ']') {
-      infixNodes.push_back(Node());
-    } else {
-      infixNodes.push_back(Node(treeData2[nextIndex]));
-    }
-
-    treeData2 = treeData2.substr(nextIndex+1);
-  }
-}
-
-void Tree::printNodes() {
-  for(int index=0; index<prefixNodes.size(); index++) {
-    cout << prefixNodes[index].symbol << endl;
-  }
-  cout << endl;
-  cout << "INFIX" << endl;
-  for(int index=0; index<infixNodes.size(); index++) {
-    cout << infixNodes[index].symbol << endl;
-  }
-}
-
-void Tree::descompress() {
+void Descompressor::descompress() {
+  string toDescompress;
+  descompressedData.clear();
+  char symbol;
   for(int index=0; index<data.size(); index++) {
+    toDescompress += data[index];
+    symbol = getSymbol(toDescompress);
 
-
-    if(data[index] == 0) {
-
-    } else {
-
+    if(symbol != '\0') {
+      descompressedData += symbol;
+      toDescompress.clear();
     }
   }
+
+  std::ofstream file (filename);
+  file << descompressedData;
+  file.close();
 }
 
 void printVector(vector<string> vertex) {
@@ -234,14 +171,19 @@ void printVector(vector<string> vertex) {
 
 
 int main(int argc, char** argv) {
-  Tree tree;
+  Descompressor descompressor;
 
   std::ifstream infile(argv[1], std::ios::binary);
-
-  tree.data = std::vector<char>
+  descompressor.filename = string(argv[1]);
+  descompressor.filename = descompressor.filename.substr
+    (0, descompressor.filename.find(".comp"));
+  //cout << "FILE " << descompressor.filename << endl;
+  descompressor.data = std::vector<char>
     (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
 
-  tree.getTreeFromFile();
-  tree.printNodes();
+  descompressor.getCodesFromFile();
+  //descompressor.printCodes();
+  descompressor.descompress();
+  //cout << descompressor.descompressedData << endl;
   return 0;
 }
