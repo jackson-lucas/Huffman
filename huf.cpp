@@ -193,6 +193,7 @@ class Graph {
     vector<Node> nodes;
     Graph(vector<Node> nodes);
     void printNodes();
+    string getNodes();
     int getLesserFrequency();
     Node getTree();
 };
@@ -203,9 +204,21 @@ Graph::Graph(vector<Node> nodes) {
 
 void Graph::printNodes() {
   for(int index=0; index<nodes.size(); index++) {
-    //cout << nodes[index].symbol << ": " << nodes[index].frequency << endl;
+    cout << nodes[index].symbol << ": " << nodes[index].frequency << endl;
   }
-  //cout << endl;
+  cout << endl;
+}
+
+string Graph::getNodes() {
+  string nodesAsString;
+  for(int index=0; index<nodes.size(); index++) {
+    nodesAsString += nodes[index].symbol;
+    nodesAsString += ":";
+    nodesAsString += to_string(nodes[index].frequency);
+    nodesAsString += ";";
+  }
+  nodesAsString += "DELIMITER";
+  return nodesAsString;
 }
 
 int Graph::getLesserFrequency() {
@@ -297,16 +310,20 @@ int main(int argc, char** argv) {
 
   std::vector<char> data = std::vector<char>
     (std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
-
+  //string dataBin(data.begin(), data.end());
+  //cout << dataBin;
   //printVector(data);
 
   Graph graph = getGraph(data);
-  graph.printNodes();
+  //graph.printNodes();
+  string nodesAsString = graph.getNodes();
+
+  //cout << nodesAsString << endl;
   Node root = graph.getTree();
-  root.print();
+  //root.print();
   //cout << endl;
   root.getCodes();
-  root.printCodes();
+  //root.printCodes();
   root.generateCode(data);
   //cout << endl;
   ////cout << root.compactedData << endl;
@@ -315,12 +332,9 @@ int main(int argc, char** argv) {
   string file(argv[1]);
   std::ofstream outfile (file+".comp");
 
+  outfile << nodesAsString;
   outfile << root.compactedData;
 
   outfile.close();
-
-  std::ofstream tree ("codes");
-  tree << root.codesAsString() << std::endl;
-  tree.close();
   return 0;
 }
