@@ -1,0 +1,21 @@
+Pergunta: Mostre que o algoritmo de Huffman é uma solução gulosa
+para o problema de encontrar uma árvore de codificação ótima, dados
+o conjunto de símbolos de entrada e suas respectivas frequências.
+
+Resposta:
+
+Um algoritmo guloso utiliza-se de informações do escopo local para
+poder alcançar(ou aproximar de) um objetivo(informação) do escopo global.
+
+Considerando que como entrada o algoritmo apenas tem os vértices
+com as informações da frequência e o símbolo cada(ou seja, são vértices folhas).
+
+O algoritmo de Huffman utiliza os dois menores vértices locais
+para ir construindo uma árvore a partir das folhas até chegar um só vértice raiz.
+
+Ou seja, a cada iteração o algoritmo utiliza a informação
+de menor vértice(menor frequência) que está disponível
+no escopo local até formar a árvore completamente(escopo global)
+ e conseguir o objetivo de ter uma árvore de codificação ótima.
+
+Jackson Lima

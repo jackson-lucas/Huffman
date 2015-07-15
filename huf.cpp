@@ -39,9 +39,6 @@ class Node {
     void plusOneFrequency();
     vector<Column> getCodes(string code);
    void printCodes();
-   string treeAsPrefix();
-   string treeAsInfix();
-   string codesAsString();
    string getCodeBySymbol(char symbol);
    void generateCode(vector<char> data);
    void printCompactedData();
@@ -57,65 +54,6 @@ Node::Node(int frequency, vector<Node> adjacents) {
   this->frequency = frequency;
   this->hasSymbol = false;
   this->adjacents = adjacents;
-}
-
-string Node::codesAsString() {
-  string codeTable;
-  for(int index=0; index<codes.size(); index++) {
-    codeTable += codes[index].symbol;
-    codeTable += ":" + codes[index].code + '\n';
-  }
-
-  return codeTable;
-}
-
-string Node::treeAsPrefix() {
-  string tree;
-
-  //tree += "[";
-  tree += symbol;
-  tree += "]";
-
-  //tree += "[";
-  // the lesser to the left
-  if(adjacents.size() > 1) {
-
-    tree += adjacents[0].treeAsPrefix();
-
-
-    //tree += "\n";
-
-    tree += adjacents[1].treeAsPrefix();
-  }
-  //tree+="]";
-
-  return tree;
-}
-
-string Node::treeAsInfix() {
-  string tree;
-
-  //tree += "[";
-
-
-  //tree += "[";
-  // the lesser to the left
-  if(adjacents.size() > 0) {
-
-    tree += adjacents[0].treeAsInfix();
-    tree += "]";
-  }
-
-    tree += symbol;
-    tree += "]";
-    //tree += "\n";
-  if(adjacents.size() > 1) {
-
-    tree += adjacents[1].treeAsInfix();
-  }
-  //tree+="]";
-
-  return tree;
 }
 
 void Node::print() {
@@ -173,8 +111,9 @@ string Node::getCodeBySymbol(char symbol) {
     }
   }
 
-   return "";
- }
+  return "";
+}
+
 void Node::generateCode(vector<char> data) {
   compactedData.clear();
   for(int index=0; index<data.size(); index++) {
@@ -182,7 +121,7 @@ void Node::generateCode(vector<char> data) {
     temp = getCodeBySymbol(data[index]);
     compactedData += temp;
   }
- }
+}
 
 void Node::plusOneFrequency() {
   frequency++;
@@ -215,7 +154,7 @@ string Graph::getNodes() {
     nodesAsString += nodes[index].symbol;
     nodesAsString += ":";
     nodesAsString += to_string(nodes[index].frequency);
-    nodesAsString += ";";
+    nodesAsString += "BTW";
   }
   nodesAsString += "DELIMITER";
   return nodesAsString;
